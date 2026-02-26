@@ -1,29 +1,48 @@
 {
   "expo": {
-    "name": "-Movie-Watchlist",
-    "slug": "-Movie-Watchlist",
+    "name": "Movie Watchlist",
+    "slug": "movie-watchlist",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#141414"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Allow Movie Watchlist to access your photos to upload movie poster images.",
+        "NSCameraUsageDescription": "Allow Movie Watchlist to use the camera to take movie poster photos."
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#141414",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
-      }
+      },
+      "permissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.CAMERA"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Movie Watchlist to access your photos to upload movie poster images.",
+          "cameraPermission": "Allow Movie Watchlist to use the camera to take movie poster photos."
+        }
+      ]
+    ]
   }
 }
