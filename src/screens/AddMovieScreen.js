@@ -11,12 +11,14 @@ import {
   Switch,
   ActivityIndicator,
   Alert,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { movieSchema } from "../../utils/validators";
+import { movieSchema } from "../utils/validators";
 import { addMovie } from "../services/movieService";
 import { useAuth } from "../contexts/AuthContext";
 import ImagePickerButton from "../components/ImagePickerButton";
@@ -38,7 +40,7 @@ const GENRES = [
 export default function AddMovieScreen({ navigation }) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null); // { uri }
+  const [selectedImage, setSelectedImage] = useState(null); 
   const [selectedGenre, setSelectedGenre] = useState("");
   const [showGenrePicker, setShowGenrePicker] = useState(false);
 
@@ -99,20 +101,22 @@ export default function AddMovieScreen({ navigation }) {
         style={styles.flex}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView
           contentContainerStyle={styles.container}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
         >
           <Text style={styles.heading}>Add New Movie</Text>
 
-          {/* ── Poster Image ── */}
+    
           <Text style={styles.label}>Poster Image</Text>
           <ImagePickerButton
             image={selectedImage}
             onImageSelected={setSelectedImage}
           />
 
-          {/* ── Title (required + min 2 chars) ── */}
+        
           <Text style={styles.label}>Title *</Text>
           <Controller
             control={control}
@@ -261,6 +265,7 @@ export default function AddMovieScreen({ navigation }) {
             )}
           </TouchableOpacity>
         </ScrollView>
+        </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

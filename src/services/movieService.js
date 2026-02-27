@@ -69,7 +69,7 @@ export async function addMovie({ imageUri, ...movieData }) {
       if (!uploadResult.error) {
         imageUrl = uploadResult.url;
       } else {
-        console.warn('Image upload failed, saving movie without poster.');
+        console.warn("Image upload failed, saving movie without poster.");
       }
     }
 

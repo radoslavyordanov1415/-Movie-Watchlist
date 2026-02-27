@@ -1,10 +1,11 @@
 import {
   ref,
-  uploadBytesResumable,
+  uploadString,
   getDownloadURL,
   deleteObject,
-} from "firebase/storage";
-import { storage } from "../config/firebase";
+} from 'firebase/storage';
+import * as FileSystem from 'expo-file-system';
+import { storage } from '../config/firebase';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Storage Service — Firebase Storage image upload / delete
@@ -20,33 +21,16 @@ import { storage } from "../config/firebase";
  */
 export async function uploadImage(uri, path) {
   try {
-    // Use XMLHttpRequest to convert URI → Blob.
-    // This is the correct approach for React Native — fetch().blob() does
-    // not work reliably with Firebase Storage in the Expo environment.
-    const blob = await new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.onload = () => resolve(xhr.response);
-      xhr.onerror = () => reject(new Error('Failed to convert image to blob'));
-      xhr.responseType = 'blob';
-      xhr.open('GET', uri, true);
-      xhr.send(null);
+    // Read the image as base64 using expo-file-system.
+    // This is the most reliable approach for Firebase Storage in Expo Go.
+    const base64 = await FileSystem.readAsStringAsync(uri, {
+      encoding: FileSystem.EncodingType.Base64,
     });
 
     const storageRef = ref(storage, path);
-    const uploadTask = uploadBytesResumable(storageRef, blob);
-
-    // Wait for the upload to complete
-    await new Promise((resolve, reject) => {
-      uploadTask.on(
-        'state_changed',
-        null,
-        (error) => reject(error),
-        () => resolve(),
-      );
+    await uploadString(storageRef, base64, 'base64', {
+      contentType: 'image/jpeg',
     });
-
-    // Release the blob memory
-    blob.close?.();
 
     const url = await getDownloadURL(storageRef);
     return { url };

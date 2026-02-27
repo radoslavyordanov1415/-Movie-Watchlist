@@ -12,12 +12,14 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { movieSchema } from "../../utils/validators";
+import { movieSchema } from "../utils/validators";
 import { updateMovie } from "../services/movieService";
 import ImagePickerButton from "../components/ImagePickerButton";
 import RatingPicker from "../components/RatingPicker";
@@ -93,9 +95,11 @@ export default function EditMovieScreen({ route, navigation }) {
         style={styles.flex}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView
           contentContainerStyle={styles.container}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
         >
           <Text style={styles.heading}>Edit Movie</Text>
 
@@ -265,6 +269,7 @@ export default function EditMovieScreen({ route, navigation }) {
             )}
           </TouchableOpacity>
         </ScrollView>
+        </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
