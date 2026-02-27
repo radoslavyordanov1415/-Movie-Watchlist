@@ -1,4 +1,5 @@
 import React, { useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import {
   View,
   Text,
@@ -17,18 +18,24 @@ import ErrorMessage from "../components/ErrorMessage";
 
 export default function MovieListScreen({ navigation }) {
   const { user } = useAuth();
-  const { movies, loading, error, refresh } = useMovies(user?.uid);
+  const { movies, loading, error, refresh, silentRefresh } = useMovies(user?.uid);
+
+  useFocusEffect(
+    useCallback(() => {
+      silentRefresh();
+    }, [silentRefresh])
+  );
 
   const handleMoviePress = useCallback(
-    (movieId) => {
-      navigation.navigate("MovieDetails", { movieId });
+    (movie) => {
+      navigation.navigate("MovieDetails", { movieId: movie.id, title: movie.title });
     },
     [navigation],
   );
 
   const renderItem = useCallback(
     ({ item }) => (
-      <MovieCard movie={item} onPress={() => handleMoviePress(item.id)} />
+      <MovieCard movie={item} onPress={() => handleMoviePress(item)} />
     ),
     [handleMoviePress],
   );
@@ -51,13 +58,10 @@ export default function MovieListScreen({ navigation }) {
     <SafeAreaView style={styles.safe} edges={["bottom"]}>
       <StatusBar style="light" />
 
-      {/* Full-screen loading on first load */}
       {loading && movies.length === 0 && <LoadingSpinner />}
 
-      {/* Error message */}
       {error && !loading && <ErrorMessage message={error} onRetry={refresh} />}
 
-      {/* Movie list with pull-to-refresh */}
       {!error && (
         <FlatList
           data={movies}

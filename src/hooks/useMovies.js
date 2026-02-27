@@ -23,9 +23,17 @@ export function useMovies(userId) {
     fetchMovies();
   }, [fetchMovies]);
 
+  const silentRefresh = useCallback(async () => {
+    if (!userId) return;
+    const result = await getMovies(userId);
+    if (!result.error) {
+      setMovies(result.data);
+    }
+  }, [userId]);
+
   const refresh = useCallback(() => {
     fetchMovies();
   }, [fetchMovies]);
 
-  return { movies, loading, error, refresh };
+  return { movies, loading, error, refresh, silentRefresh };
 }
