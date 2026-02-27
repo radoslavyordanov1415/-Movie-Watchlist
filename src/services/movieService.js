@@ -8,7 +8,6 @@ import {
   doc,
   query,
   where,
-  orderBy,
   serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../config/firebase";
@@ -28,8 +27,7 @@ export async function getMovies(userId) {
   try {
     const q = query(
       collection(db, COLLECTION),
-      where("userId", "==", userId),
-      orderBy("createdAt", "desc"),
+      where("userId", "==", userId)
     );
     const snapshot = await getDocs(q);
     const movies = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
