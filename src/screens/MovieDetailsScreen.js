@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import {
   View,
   Text,
@@ -36,8 +37,8 @@ export default function MovieDetailsScreen({ route, navigation }) {
   const [error, setError] = useState("");
   const [deleting, setDeleting] = useState(false);
 
-  const fetchMovie = useCallback(async () => {
-    setLoading(true);
+  const fetchMovie = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     setError("");
     const result = await getMovieById(movieId);
     if (result.error) {
@@ -46,12 +47,18 @@ export default function MovieDetailsScreen({ route, navigation }) {
       setMovie(result.data);
       navigation.setOptions({ title: result.data.title });
     }
-    setLoading(false);
+    if (!silent) setLoading(false);
   }, [movieId, navigation]);
 
   useEffect(() => {
-    fetchMovie();
+    fetchMovie(false);
   }, [fetchMovie]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (movie) fetchMovie(true);
+    }, [movie, fetchMovie])
+  );
 
   const handleDelete = () => {
     Alert.alert(
