@@ -1,9 +1,8 @@
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 import * as ImageManipulator from "expo-image-manipulator";
 
 export async function uploadImage(uri, _path) {
   try {
- 
     const manipulated = await ImageManipulator.manipulateAsync(
       uri,
       [{ resize: { width: 400 } }],
@@ -11,7 +10,7 @@ export async function uploadImage(uri, _path) {
     );
 
     const base64 = await FileSystem.readAsStringAsync(manipulated.uri, {
-      encoding: FileSystem.EncodingType.Base64,
+      encoding: "base64",
     });
 
     const dataUri = `data:image/jpeg;base64,${base64}`;
@@ -22,7 +21,4 @@ export async function uploadImage(uri, _path) {
   }
 }
 
-
-export async function deleteImage(_downloadUrl) {
-
-}
+export async function deleteImage(_downloadUrl) {}
