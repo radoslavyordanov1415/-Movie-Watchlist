@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
+import { useFocusEffect } from "@react-navigation/native";
 import { useAuth } from "../contexts/AuthContext";
 import { logoutUser } from "../services/authService";
 import { getMovieStats } from "../services/movieService";
@@ -19,18 +20,16 @@ export default function ProfileScreen() {
   const [loadingLogout, setLoadingLogout] = useState(false);
   const [loadingStats, setLoadingStats] = useState(true);
 
-  useEffect(() => {
-    let isMounted = true;
-    if (user?.uid) {
+  useFocusEffect(
+    useCallback(() => {
+      if (!user?.uid) return;
+      setLoadingStats(true);
       getMovieStats(user.uid).then((result) => {
-        if (isMounted && result.data) setStats(result.data);
-        if (isMounted) setLoadingStats(false);
+        if (result.data) setStats(result.data);
+        setLoadingStats(false);
       });
-    }
-    return () => {
-      isMounted = false;
-    };
-  }, [user]);
+    }, [user]),
+  );
 
   const handleLogout = () => {
     Alert.alert("Sign Out", "Are you sure you want to sign out?", [
