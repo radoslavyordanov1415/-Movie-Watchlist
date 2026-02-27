@@ -25,10 +25,7 @@ const COLLECTION = "movies";
  */
 export async function getMovies(userId) {
   try {
-    const q = query(
-      collection(db, COLLECTION),
-      where("userId", "==", userId)
-    );
+    const q = query(collection(db, COLLECTION), where("userId", "==", userId));
     const snapshot = await getDocs(q);
     const movies = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
     return { data: movies };
@@ -68,8 +65,12 @@ export async function addMovie({ imageUri, ...movieData }) {
         imageUri,
         `posters/${movieData.userId}_${Date.now()}.jpg`,
       );
-      if (uploadResult.error) return { error: uploadResult.error };
-      imageUrl = uploadResult.url;
+      // If image upload fails, save movie without image rather than blocking
+      if (!uploadResult.error) {
+        imageUrl = uploadResult.url;
+      } else {
+        console.warn('Image upload failed, saving movie without poster.');
+      }
     }
 
     const docRef = await addDoc(collection(db, COLLECTION), {

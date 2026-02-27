@@ -20,9 +20,17 @@ import { storage } from "../config/firebase";
  */
 export async function uploadImage(uri, path) {
   try {
-    // Convert the URI to a Blob so the Firebase JS SDK can upload it
-    const response = await fetch(uri);
-    const blob = await response.blob();
+    // Use XMLHttpRequest to convert URI → Blob.
+    // This is the correct approach for React Native — fetch().blob() does
+    // not work reliably with Firebase Storage in the Expo environment.
+    const blob = await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = () => resolve(xhr.response);
+      xhr.onerror = () => reject(new Error('Failed to convert image to blob'));
+      xhr.responseType = 'blob';
+      xhr.open('GET', uri, true);
+      xhr.send(null);
+    });
 
     const storageRef = ref(storage, path);
     const uploadTask = uploadBytesResumable(storageRef, blob);
@@ -30,18 +38,21 @@ export async function uploadImage(uri, path) {
     // Wait for the upload to complete
     await new Promise((resolve, reject) => {
       uploadTask.on(
-        "state_changed",
-        null, // progress callback (omitted for simplicity)
+        'state_changed',
+        null,
         (error) => reject(error),
         () => resolve(),
       );
     });
 
+    // Release the blob memory
+    blob.close?.();
+
     const url = await getDownloadURL(storageRef);
     return { url };
   } catch (err) {
-    console.error("uploadImage error:", err);
-    return { error: "Failed to upload image. Please try again." };
+    console.error('uploadImage error:', err);
+    return { error: 'Failed to upload image. Please try again.' };
   }
 }
 
