@@ -96,179 +96,179 @@ export default function EditMovieScreen({ route, navigation }) {
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ScrollView
-          contentContainerStyle={styles.container}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="on-drag"
-        >
-          <Text style={styles.heading}>Edit Movie</Text>
-
-          <Text style={styles.label}>Poster Image</Text>
-          {movie.imageUrl && !selectedImage && (
-            <Image
-              source={{ uri: movie.imageUrl }}
-              style={styles.existingImage}
-              resizeMode="cover"
-            />
-          )}
-          <ImagePickerButton
-            image={selectedImage}
-            onImageSelected={setSelectedImage}
-          />
-          {selectedImage && (
-            <TouchableOpacity onPress={() => setSelectedImage(null)}>
-              <Text style={styles.removeImage}>Remove new photo</Text>
-            </TouchableOpacity>
-          )}
-
-          <Text style={styles.label}>Title *</Text>
-          <Controller
-            control={control}
-            name="title"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                style={[styles.input, errors.title && styles.inputError]}
-                placeholder="e.g. Inception"
-                placeholderTextColor="#555"
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-              />
-            )}
-          />
-          {errors.title && (
-            <Text style={styles.error}>{errors.title.message}</Text>
-          )}
-
-          <Text style={styles.label}>Genre *</Text>
-          <TouchableOpacity
-            style={[
-              styles.input,
-              styles.pickerButton,
-              errors.genre && styles.inputError,
-            ]}
-            onPress={() => setShowGenrePicker(!showGenrePicker)}
+          <ScrollView
+            contentContainerStyle={styles.container}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
           >
-            <Text
-              style={
-                selectedGenre ? styles.pickerText : styles.pickerPlaceholder
-              }
-            >
-              {selectedGenre || "Select a genre"}
-            </Text>
-            <Text style={styles.pickerArrow}>
-              {showGenrePicker ? "▲" : "▼"}
-            </Text>
-          </TouchableOpacity>
-          {errors.genre && (
-            <Text style={styles.error}>{errors.genre.message}</Text>
-          )}
-          {showGenrePicker && (
-            <View style={styles.genreList}>
-              {GENRES.map((g) => (
-                <TouchableOpacity
-                  key={g}
-                  style={[
-                    styles.genreItem,
-                    selectedGenre === g && styles.genreItemSelected,
-                  ]}
-                  onPress={() => handleGenreSelect(g)}
-                >
-                  <Text
-                    style={[
-                      styles.genreItemText,
-                      selectedGenre === g && styles.genreItemTextSelected,
-                    ]}
-                  >
-                    {g}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
+            <Text style={styles.heading}>Edit Movie</Text>
 
-          <Text style={styles.label}>Synopsis / Notes *</Text>
-          <Controller
-            control={control}
-            name="description"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                style={[
-                  styles.input,
-                  styles.textArea,
-                  errors.description && styles.inputError,
-                ]}
-                placeholder="Write a short synopsis or your thoughts..."
-                placeholderTextColor="#555"
-                multiline
-                numberOfLines={4}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
+            <Text style={styles.label}>Poster Image</Text>
+            {movie.imageUrl && !selectedImage && (
+              <Image
+                source={{ uri: movie.imageUrl }}
+                style={styles.existingImage}
+                resizeMode="cover"
               />
             )}
-          />
-          {errors.description && (
-            <Text style={styles.error}>{errors.description.message}</Text>
-          )}
-
-          <Text style={styles.label}>Your Rating</Text>
-          <Controller
-            control={control}
-            name="rating"
-            render={({ field: { onChange, value } }) => (
-              <RatingPicker value={value} onChange={onChange} />
+            <ImagePickerButton
+              image={selectedImage}
+              onImageSelected={setSelectedImage}
+            />
+            {selectedImage && (
+              <TouchableOpacity onPress={() => setSelectedImage(null)}>
+                <Text style={styles.removeImage}>Remove new photo</Text>
+              </TouchableOpacity>
             )}
-          />
 
-          <Text style={styles.label}>Watch Date (YYYY-MM-DD)</Text>
-          <Controller
-            control={control}
-            name="watchDate"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                style={[styles.input, errors.watchDate && styles.inputError]}
-                placeholder="e.g. 2024-12-01"
-                placeholderTextColor="#555"
-                keyboardType="numeric"
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-              />
-            )}
-          />
-          {errors.watchDate && (
-            <Text style={styles.error}>{errors.watchDate.message}</Text>
-          )}
-
-          <View style={styles.switchRow}>
-            <Text style={styles.label}>Already Watched?</Text>
+            <Text style={styles.label}>Title *</Text>
             <Controller
               control={control}
-              name="watched"
-              render={({ field: { onChange, value } }) => (
-                <Switch
+              name="title"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  style={[styles.input, errors.title && styles.inputError]}
+                  placeholder="e.g. Inception"
+                  placeholderTextColor="#555"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
                   value={value}
-                  onValueChange={onChange}
-                  trackColor={{ false: "#333", true: "#E50914" }}
-                  thumbColor={value ? "#fff" : "#888"}
                 />
               )}
             />
-          </View>
-
-          <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
-            onPress={handleSubmit(onSubmit)}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.buttonText}>Save Changes</Text>
+            {errors.title && (
+              <Text style={styles.error}>{errors.title.message}</Text>
             )}
-          </TouchableOpacity>
-        </ScrollView>
+
+            <Text style={styles.label}>Genre *</Text>
+            <TouchableOpacity
+              style={[
+                styles.input,
+                styles.pickerButton,
+                errors.genre && styles.inputError,
+              ]}
+              onPress={() => setShowGenrePicker(!showGenrePicker)}
+            >
+              <Text
+                style={
+                  selectedGenre ? styles.pickerText : styles.pickerPlaceholder
+                }
+              >
+                {selectedGenre || "Select a genre"}
+              </Text>
+              <Text style={styles.pickerArrow}>
+                {showGenrePicker ? "▲" : "▼"}
+              </Text>
+            </TouchableOpacity>
+            {errors.genre && (
+              <Text style={styles.error}>{errors.genre.message}</Text>
+            )}
+            {showGenrePicker && (
+              <View style={styles.genreList}>
+                {GENRES.map((g) => (
+                  <TouchableOpacity
+                    key={g}
+                    style={[
+                      styles.genreItem,
+                      selectedGenre === g && styles.genreItemSelected,
+                    ]}
+                    onPress={() => handleGenreSelect(g)}
+                  >
+                    <Text
+                      style={[
+                        styles.genreItemText,
+                        selectedGenre === g && styles.genreItemTextSelected,
+                      ]}
+                    >
+                      {g}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+
+            <Text style={styles.label}>Synopsis / Notes *</Text>
+            <Controller
+              control={control}
+              name="description"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  style={[
+                    styles.input,
+                    styles.textArea,
+                    errors.description && styles.inputError,
+                  ]}
+                  placeholder="Write a short synopsis or your thoughts..."
+                  placeholderTextColor="#555"
+                  multiline
+                  numberOfLines={4}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                />
+              )}
+            />
+            {errors.description && (
+              <Text style={styles.error}>{errors.description.message}</Text>
+            )}
+
+            <Text style={styles.label}>Your Rating</Text>
+            <Controller
+              control={control}
+              name="rating"
+              render={({ field: { onChange, value } }) => (
+                <RatingPicker value={value} onChange={onChange} />
+              )}
+            />
+
+            <Text style={styles.label}>Watch Date (YYYY-MM-DD)</Text>
+            <Controller
+              control={control}
+              name="watchDate"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  style={[styles.input, errors.watchDate && styles.inputError]}
+                  placeholder="e.g. 2024-12-01"
+                  placeholderTextColor="#555"
+                  keyboardType="numeric"
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                />
+              )}
+            />
+            {errors.watchDate && (
+              <Text style={styles.error}>{errors.watchDate.message}</Text>
+            )}
+
+            <View style={styles.switchRow}>
+              <Text style={styles.label}>Already Watched?</Text>
+              <Controller
+                control={control}
+                name="watched"
+                render={({ field: { onChange, value } }) => (
+                  <Switch
+                    value={value}
+                    onValueChange={onChange}
+                    trackColor={{ false: "#333", true: "#E50914" }}
+                    thumbColor={value ? "#fff" : "#888"}
+                  />
+                )}
+              />
+            </View>
+
+            <TouchableOpacity
+              style={[styles.button, loading && styles.buttonDisabled]}
+              onPress={handleSubmit(onSubmit)}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>Save Changes</Text>
+              )}
+            </TouchableOpacity>
+          </ScrollView>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </SafeAreaView>
