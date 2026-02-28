@@ -2,6 +2,7 @@ import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import HomeStack from "./HomeStack";
+import BrowseStack from "./BrowseStack";
 import AddMovieScreen from "../screens/AddMovieScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 
@@ -22,6 +23,8 @@ export default function AppTabs() {
           let iconName;
           if (route.name === "Home") {
             iconName = focused ? "film" : "film-outline";
+          } else if (route.name === "Browse") {
+            iconName = focused ? "search" : "search-outline";
           } else if (route.name === "AddMovie") {
             iconName = focused ? "add-circle" : "add-circle-outline";
           } else if (route.name === "Profile") {
@@ -37,9 +40,14 @@ export default function AppTabs() {
         options={{ tabBarLabel: "Watchlist" }}
       />
       <Tab.Screen
+        name="Browse"
+        component={BrowseStack}
+        options={{ tabBarLabel: "Browse" }}
+      />
+      <Tab.Screen
         name="AddMovie"
         component={AddMovieScreen}
-        options={{ tabBarLabel: "Add Movie" }}
+        options={{ tabBarLabel: "Custom" }}
       />
       <Tab.Screen
         name="Profile"
