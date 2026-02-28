@@ -4,6 +4,7 @@ import {
   View,
   Text,
   FlatList,
+  ScrollView,
   StyleSheet,
   TouchableOpacity,
   RefreshControl,
@@ -14,14 +15,22 @@ import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../contexts/AuthContext";
 import { useMovies } from "../hooks/useMovies";
+import { updateMovie } from "../services/movieService";
 import MovieCard from "../components/MovieCard";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
 
-const FILTERS = [
+const STATUS_FILTERS = [
   { key: "all", label: "All" },
   { key: "watched", label: "Watched" },
   { key: "unwatched", label: "To Watch" },
+];
+
+const SORT_OPTIONS = [
+  { key: "newest", label: "↓ Newest" },
+  { key: "oldest", label: "↑ Oldest" },
+  { key: "rating", label: "★ Top Rated" },
+  { key: "az", label: "A–Z" },
 ];
 
 export default function MovieListScreen({ navigation }) {
@@ -31,12 +40,19 @@ export default function MovieListScreen({ navigation }) {
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
+  const [activeGenre, setActiveGenre] = useState("all");
+  const [activeSort, setActiveSort] = useState("newest");
 
   useFocusEffect(
     useCallback(() => {
       silentRefresh();
     }, [silentRefresh]),
   );
+
+  const uniqueGenres = useMemo(() => {
+    const genres = movies.map((m) => m.genre).filter(Boolean);
+    return ["all", ...Array.from(new Set(genres)).sort()];
+  }, [movies]);
 
   const filteredMovies = useMemo(() => {
     let result = movies;
@@ -47,13 +63,47 @@ export default function MovieListScreen({ navigation }) {
       result = result.filter((m) => m.watched !== true);
     }
 
+    if (activeGenre !== "all") {
+      result = result.filter((m) => m.genre === activeGenre);
+    }
+
     if (searchQuery.trim()) {
       const q = searchQuery.trim().toLowerCase();
       result = result.filter((m) => m.title.toLowerCase().includes(q));
     }
 
+    result = [...result].sort((a, b) => {
+      if (activeSort === "oldest") {
+        return (a.createdAt?.seconds ?? 0) - (b.createdAt?.seconds ?? 0);
+      }
+      if (activeSort === "rating") {
+        return (b.rating ?? 0) - (a.rating ?? 0);
+      }
+      if (activeSort === "az") {
+        return a.title.localeCompare(b.title);
+      }
+      return (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0);
+    });
+
     return result;
-  }, [movies, activeFilter, searchQuery]);
+  }, [movies, activeFilter, activeGenre, activeSort, searchQuery]);
+
+  const handleToggleWatched = useCallback(
+    async (movie) => {
+      await updateMovie(movie.id, {
+        watched: !movie.watched,
+        existingImageUrl: movie.imageUrl,
+      });
+      silentRefresh();
+    },
+    [silentRefresh],
+  );
+
+  const cycleSortKey = useCallback(() => {
+    const keys = SORT_OPTIONS.map((s) => s.key);
+    const next = (keys.indexOf(activeSort) + 1) % keys.length;
+    setActiveSort(keys[next]);
+  }, [activeSort]);
 
   const handleMoviePress = useCallback(
     (movie) => {
@@ -67,14 +117,19 @@ export default function MovieListScreen({ navigation }) {
 
   const renderItem = useCallback(
     ({ item }) => (
-      <MovieCard movie={item} onPress={() => handleMoviePress(item)} />
+      <MovieCard
+        movie={item}
+        onPress={() => handleMoviePress(item)}
+        onToggleWatched={() => handleToggleWatched(item)}
+      />
     ),
-    [handleMoviePress],
+    [handleMoviePress, handleToggleWatched],
   );
 
   const renderEmpty = () => {
     if (loading) return null;
-    const isFiltered = searchQuery.trim() || activeFilter !== "all";
+    const isFiltered =
+      searchQuery.trim() || activeFilter !== "all" || activeGenre !== "all";
     return (
       <View style={styles.emptyContainer}>
         <Text style={styles.emptyEmoji}>{isFiltered ? "🔍" : "🎬"}</Text>
@@ -118,7 +173,7 @@ export default function MovieListScreen({ navigation }) {
       </View>
 
       <View style={styles.filterRow}>
-        {FILTERS.map((f) => (
+        {STATUS_FILTERS.map((f) => (
           <TouchableOpacity
             key={f.key}
             style={[
@@ -138,7 +193,46 @@ export default function MovieListScreen({ navigation }) {
             </Text>
           </TouchableOpacity>
         ))}
+        <TouchableOpacity
+          style={styles.sortBtn}
+          onPress={cycleSortKey}
+          activeOpacity={0.75}
+        >
+          <Text style={styles.sortBtnText}>
+            {SORT_OPTIONS.find((s) => s.key === activeSort)?.label}
+          </Text>
+        </TouchableOpacity>
       </View>
+
+      {uniqueGenres.length > 2 && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.genreScroll}
+          contentContainerStyle={styles.genreScrollContent}
+        >
+          {uniqueGenres.map((g) => (
+            <TouchableOpacity
+              key={g}
+              style={[
+                styles.genreChip,
+                activeGenre === g && styles.genreChipActive,
+              ]}
+              onPress={() => setActiveGenre(g)}
+              activeOpacity={0.75}
+            >
+              <Text
+                style={[
+                  styles.genreChipText,
+                  activeGenre === g && styles.genreChipTextActive,
+                ]}
+              >
+                {g === "all" ? "All Genres" : g}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      )}
 
       {loading && movies.length === 0 && <LoadingSpinner />}
 
@@ -196,6 +290,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     gap: 8,
     marginBottom: 4,
+    alignItems: "center",
+    flexWrap: "nowrap",
+  },
+  sortBtn: {
+    marginLeft: "auto",
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: "#1e1e1e",
+    borderWidth: 1,
+    borderColor: "#555",
+  },
+  sortBtnText: {
+    color: "#aaa",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  genreScroll: {
+    marginBottom: 4,
+  },
+  genreScrollContent: {
+    paddingHorizontal: 16,
+    gap: 8,
   },
   filterChip: {
     borderRadius: 20,
@@ -216,6 +333,27 @@ const styles = StyleSheet.create({
   },
   filterChipTextActive: {
     color: "#fff",
+  },
+  genreChip: {
+    borderRadius: 20,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    backgroundColor: "#1e1e1e",
+    borderWidth: 1,
+    borderColor: "#333",
+    alignSelf: "flex-start",
+  },
+  genreChipText: {
+    color: "#888",
+    fontSize: 10,
+    fontWeight: "600",
+  },
+  genreChipActive: {
+    backgroundColor: "#1a3a5c",
+    borderColor: "#2a6aac",
+  },
+  genreChipTextActive: {
+    color: "#6ab0f5",
   },
   emptyContainer: {
     flex: 1,

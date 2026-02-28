@@ -1,18 +1,13 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// MovieCard — pressable list item for MovieListScreen's FlatList
-// ─────────────────────────────────────────────────────────────────────────────
-
-export default function MovieCard({ movie, onPress }) {
+export default function MovieCard({ movie, onPress, onToggleWatched }) {
   return (
     <TouchableOpacity
       style={styles.card}
       onPress={onPress}
       activeOpacity={0.75}
     >
-      {/* Poster */}
       {movie.imageUrl ? (
         <Image
           source={{ uri: movie.imageUrl }}
@@ -25,14 +20,12 @@ export default function MovieCard({ movie, onPress }) {
         </View>
       )}
 
-      {/* Info */}
       <View style={styles.info}>
         <Text style={styles.title} numberOfLines={2}>
           {movie.title}
         </Text>
         <Text style={styles.genre}>{movie.genre}</Text>
 
-        {/* Stars */}
         <View style={styles.starsRow}>
           {[1, 2, 3, 4, 5].map((s) => (
             <Text
@@ -44,17 +37,18 @@ export default function MovieCard({ movie, onPress }) {
           ))}
         </View>
 
-        {/* Watched badge */}
-        <View
+        <TouchableOpacity
           style={[
             styles.badge,
             movie.watched ? styles.badgeWatched : styles.badgeUnwatched,
           ]}
+          onPress={onToggleWatched}
+          activeOpacity={0.7}
         >
           <Text style={styles.badgeText}>
             {movie.watched ? "✅ Watched" : "⏳ To Watch"}
           </Text>
-        </View>
+        </TouchableOpacity>
       </View>
     </TouchableOpacity>
   );
