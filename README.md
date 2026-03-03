@@ -6,7 +6,7 @@ A personal movie tracking mobile application built with React Native and Expo. B
 
 ## 📦 APK Download
 
-> **[⬇️ Download APK](YOUR_APK_LINK_HERE)**
+> **[⬇️ Download APK](https://expo.dev/accounts/radoslavyordanov8/projects/movie-watchlist/builds/9f0235cd-f1fb-47b8-aee2-e3a33ad3fa53)**
 
 ---
 
