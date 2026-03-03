@@ -6,6 +6,7 @@ import {
   FlatList,
   ScrollView,
   Modal,
+  Keyboard,
   StyleSheet,
   TouchableOpacity,
   TouchableWithoutFeedback,
@@ -149,153 +150,163 @@ export default function MovieListScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={["bottom"]}>
-      <StatusBar style="light" />
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <SafeAreaView style={styles.safe} edges={["bottom"]}>
+        <StatusBar style="light" />
 
-      <View style={styles.searchRow}>
-        <Ionicons
-          name="search"
-          size={18}
-          color="#888"
-          style={styles.searchIcon}
-        />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search movies…"
-          placeholderTextColor="#555"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          returnKeyType="search"
-          clearButtonMode="while-editing"
-        />
-        {searchQuery.length > 0 && (
-          <TouchableOpacity onPress={() => setSearchQuery("")}>
-            <Ionicons name="close-circle" size={18} color="#555" />
-          </TouchableOpacity>
-        )}
-      </View>
+        <View style={styles.searchRow}>
+          <Ionicons
+            name="search"
+            size={18}
+            color="#888"
+            style={styles.searchIcon}
+          />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search movies…"
+            placeholderTextColor="#555"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            returnKeyType="search"
+            clearButtonMode="while-editing"
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchQuery("")}>
+              <Ionicons name="close-circle" size={18} color="#555" />
+            </TouchableOpacity>
+          )}
+        </View>
 
-      <View style={styles.filterRow}>
-        {STATUS_FILTERS.map((f) => (
+        <View style={styles.filterRow}>
+          {STATUS_FILTERS.map((f) => (
+            <TouchableOpacity
+              key={f.key}
+              style={[
+                styles.filterChip,
+                activeFilter === f.key && styles.filterChipActive,
+              ]}
+              onPress={() => setActiveFilter(f.key)}
+              activeOpacity={0.75}
+            >
+              <Text
+                style={[
+                  styles.filterChipText,
+                  activeFilter === f.key && styles.filterChipTextActive,
+                ]}
+              >
+                {f.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+          {uniqueGenres.length > 2 && (
+            <TouchableOpacity
+              style={[
+                styles.genreDropdownBtn,
+                activeGenre !== "all" && styles.genreDropdownBtnActive,
+              ]}
+              onPress={() => setGenreDropdownOpen(true)}
+              activeOpacity={0.75}
+            >
+              <Text
+                style={[
+                  styles.genreDropdownBtnText,
+                  activeGenre !== "all" && styles.genreDropdownBtnTextActive,
+                ]}
+                numberOfLines={1}
+              >
+                {activeGenre === "all" ? "Genre ▾" : `${activeGenre} ▾`}
+              </Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
-            key={f.key}
-            style={[
-              styles.filterChip,
-              activeFilter === f.key && styles.filterChipActive,
-            ]}
-            onPress={() => setActiveFilter(f.key)}
+            style={styles.sortBtn}
+            onPress={cycleSortKey}
             activeOpacity={0.75}
           >
-            <Text
-              style={[
-                styles.filterChipText,
-                activeFilter === f.key && styles.filterChipTextActive,
-              ]}
-            >
-              {f.label}
+            <Text style={styles.sortBtnText}>
+              {SORT_OPTIONS.find((s) => s.key === activeSort)?.label}
             </Text>
           </TouchableOpacity>
-        ))}
-        {uniqueGenres.length > 2 && (
-          <TouchableOpacity
-            style={[
-              styles.genreDropdownBtn,
-              activeGenre !== "all" && styles.genreDropdownBtnActive,
-            ]}
-            onPress={() => setGenreDropdownOpen(true)}
-            activeOpacity={0.75}
-          >
-            <Text
-              style={[
-                styles.genreDropdownBtnText,
-                activeGenre !== "all" && styles.genreDropdownBtnTextActive,
-              ]}
-              numberOfLines={1}
-            >
-              {activeGenre === "all" ? "Genre ▾" : `${activeGenre} ▾`}
-            </Text>
-          </TouchableOpacity>
-        )}
-        <TouchableOpacity
-          style={styles.sortBtn}
-          onPress={cycleSortKey}
-          activeOpacity={0.75}
+        </View>
+
+        <Modal
+          visible={genreDropdownOpen}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setGenreDropdownOpen(false)}
         >
-          <Text style={styles.sortBtnText}>
-            {SORT_OPTIONS.find((s) => s.key === activeSort)?.label}
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      <Modal
-        visible={genreDropdownOpen}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setGenreDropdownOpen(false)}
-      >
-        <TouchableWithoutFeedback onPress={() => setGenreDropdownOpen(false)}>
-          <View style={styles.dropdownOverlay}>
-            <TouchableWithoutFeedback>
-              <View style={styles.dropdownMenu}>
-                <Text style={styles.dropdownTitle}>Filter by Genre</Text>
-                <ScrollView bounces={false}>
-                  {uniqueGenres.map((g) => (
-                    <TouchableOpacity
-                      key={g}
-                      style={[
-                        styles.dropdownItem,
-                        activeGenre === g && styles.dropdownItemActive,
-                      ]}
-                      onPress={() => {
-                        setActiveGenre(g);
-                        setGenreDropdownOpen(false);
-                      }}
-                      activeOpacity={0.75}
-                    >
-                      <Text
+          <TouchableWithoutFeedback onPress={() => setGenreDropdownOpen(false)}>
+            <View style={styles.dropdownOverlay}>
+              <TouchableWithoutFeedback>
+                <View style={styles.dropdownMenu}>
+                  <Text style={styles.dropdownTitle}>Filter by Genre</Text>
+                  <ScrollView bounces={false}>
+                    {uniqueGenres.map((g) => (
+                      <TouchableOpacity
+                        key={g}
                         style={[
-                          styles.dropdownItemText,
-                          activeGenre === g && styles.dropdownItemTextActive,
+                          styles.dropdownItem,
+                          activeGenre === g && styles.dropdownItemActive,
                         ]}
+                        onPress={() => {
+                          setActiveGenre(g);
+                          setGenreDropdownOpen(false);
+                        }}
+                        activeOpacity={0.75}
                       >
-                        {g === "all" ? "All Genres" : g}
-                      </Text>
-                      {activeGenre === g && (
-                        <Ionicons name="checkmark" size={16} color="#E50914" />
-                      )}
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              </View>
-            </TouchableWithoutFeedback>
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
+                        <Text
+                          style={[
+                            styles.dropdownItemText,
+                            activeGenre === g && styles.dropdownItemTextActive,
+                          ]}
+                        >
+                          {g === "all" ? "All Genres" : g}
+                        </Text>
+                        {activeGenre === g && (
+                          <Ionicons
+                            name="checkmark"
+                            size={16}
+                            color="#E50914"
+                          />
+                        )}
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              </TouchableWithoutFeedback>
+            </View>
+          </TouchableWithoutFeedback>
+        </Modal>
 
-      {loading && movies.length === 0 && <LoadingSpinner />}
+        {loading && movies.length === 0 && <LoadingSpinner />}
 
-      {error && !loading && <ErrorMessage message={error} onRetry={refresh} />}
+        {error && !loading && (
+          <ErrorMessage message={error} onRetry={refresh} />
+        )}
 
-      {!error && (
-        <FlatList
-          data={filteredMovies}
-          keyExtractor={(item) => item.id}
-          renderItem={renderItem}
-          ListEmptyComponent={renderEmpty}
-          contentContainerStyle={
-            filteredMovies.length === 0 ? styles.flex : styles.list
-          }
-          refreshControl={
-            <RefreshControl
-              refreshing={loading && movies.length > 0}
-              onRefresh={refresh}
-              tintColor="#E50914"
-              colors={["#E50914"]}
-            />
-          }
-        />
-      )}
-    </SafeAreaView>
+        {!error && (
+          <FlatList
+            data={filteredMovies}
+            keyExtractor={(item) => item.id}
+            renderItem={renderItem}
+            ListEmptyComponent={renderEmpty}
+            contentContainerStyle={
+              filteredMovies.length === 0 ? styles.flex : styles.list
+            }
+            keyboardDismissMode="on-drag"
+            keyboardShouldPersistTaps="handled"
+            refreshControl={
+              <RefreshControl
+                refreshing={loading && movies.length > 0}
+                onRefresh={refresh}
+                tintColor="#E50914"
+                colors={["#E50914"]}
+              />
+            }
+          />
+        )}
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 }
 
