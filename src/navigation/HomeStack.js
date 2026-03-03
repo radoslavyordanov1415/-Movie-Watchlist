@@ -25,7 +25,9 @@ export default function HomeStack() {
       <Stack.Screen
         name="MovieDetails"
         component={MovieDetailsScreen}
-        options={({ route }) => ({ title: route.params?.title ?? "Movie Details" })}
+        options={({ route }) => ({
+          title: route.params?.title ?? "Movie Details",
+        })}
       />
 
       <Stack.Screen

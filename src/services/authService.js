@@ -5,16 +5,6 @@ import {
 } from "firebase/auth";
 import { auth } from "../config/firebase";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Auth Service
-// Wraps Firebase Auth calls and returns { data, error } objects
-// so callers never need to handle raw Firebase errors.
-// ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * Register a new user with email + password.
- * Returns { data: UserCredential } on success or { error: string } on failure.
- */
 export async function registerUser(email, password) {
   try {
     const credential = await createUserWithEmailAndPassword(
@@ -28,9 +18,6 @@ export async function registerUser(email, password) {
   }
 }
 
-/**
- * Sign in an existing user with email + password.
- */
 export async function loginUser(email, password) {
   try {
     const credential = await signInWithEmailAndPassword(auth, email, password);
@@ -40,9 +27,6 @@ export async function loginUser(email, password) {
   }
 }
 
-/**
- * Sign out the current user.
- */
 export async function logoutUser() {
   try {
     await signOut(auth);
@@ -52,7 +36,6 @@ export async function logoutUser() {
   }
 }
 
-// Map Firebase error codes to user-friendly messages
 function mapAuthError(code) {
   const map = {
     "auth/email-already-in-use":

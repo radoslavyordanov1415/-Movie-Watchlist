@@ -1,11 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// RatingPicker — Interactive 5-star rating selector
-// Satisfies the "non-standard input" requirement (not a plain TextInput).
-// ─────────────────────────────────────────────────────────────────────────────
-
 export default function RatingPicker({ value, onChange }) {
   return (
     <View style={styles.container}>

@@ -59,7 +59,6 @@ export default function RegisterScreen({ navigation }) {
             <Text style={styles.serverError}>{serverError}</Text>
           ) : null}
 
-          {/* Email — Rule: required + valid email format */}
           <Text style={styles.label}>Email</Text>
           <Controller
             control={control}
@@ -81,7 +80,6 @@ export default function RegisterScreen({ navigation }) {
             <Text style={styles.error}>{errors.email.message}</Text>
           )}
 
-          {/* Password — Multiple rules: required + min 6 chars + complexity */}
           <Text style={styles.label}>Password</Text>
           <Controller
             control={control}
@@ -102,7 +100,6 @@ export default function RegisterScreen({ navigation }) {
             <Text style={styles.error}>{errors.password.message}</Text>
           )}
 
-          {/* Confirm Password — Rule: required + must match password */}
           <Text style={styles.label}>Confirm Password</Text>
           <Controller
             control={control}

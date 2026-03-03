@@ -37,18 +37,21 @@ export default function MovieDetailsScreen({ route, navigation }) {
   const [error, setError] = useState("");
   const [deleting, setDeleting] = useState(false);
 
-  const fetchMovie = useCallback(async (silent = false) => {
-    if (!silent) setLoading(true);
-    setError("");
-    const result = await getMovieById(movieId);
-    if (result.error) {
-      setError(result.error);
-    } else {
-      setMovie(result.data);
-      navigation.setOptions({ title: result.data.title });
-    }
-    if (!silent) setLoading(false);
-  }, [movieId, navigation]);
+  const fetchMovie = useCallback(
+    async (silent = false) => {
+      if (!silent) setLoading(true);
+      setError("");
+      const result = await getMovieById(movieId);
+      if (result.error) {
+        setError(result.error);
+      } else {
+        setMovie(result.data);
+        navigation.setOptions({ title: result.data.title });
+      }
+      if (!silent) setLoading(false);
+    },
+    [movieId, navigation],
+  );
 
   useEffect(() => {
     fetchMovie(false);
@@ -57,7 +60,7 @@ export default function MovieDetailsScreen({ route, navigation }) {
   useFocusEffect(
     useCallback(() => {
       if (movie) fetchMovie(true);
-    }, [movie, fetchMovie])
+    }, [movie, fetchMovie]),
   );
 
   const handleDelete = () => {

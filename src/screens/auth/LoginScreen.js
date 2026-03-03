@@ -51,17 +51,14 @@ export default function LoginScreen({ navigation }) {
           contentContainerStyle={styles.container}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Logo / Title */}
           <Text style={styles.logo}>🎬</Text>
           <Text style={styles.title}>Movie Watchlist</Text>
           <Text style={styles.subtitle}>Sign in to your account</Text>
 
-          {/* Server error */}
           {serverError ? (
             <Text style={styles.serverError}>{serverError}</Text>
           ) : null}
 
-          {/* Email */}
           <Text style={styles.label}>Email</Text>
           <Controller
             control={control}
@@ -83,7 +80,6 @@ export default function LoginScreen({ navigation }) {
             <Text style={styles.error}>{errors.email.message}</Text>
           )}
 
-          {/* Password */}
           <Text style={styles.label}>Password</Text>
           <Controller
             control={control}
@@ -104,7 +100,6 @@ export default function LoginScreen({ navigation }) {
             <Text style={styles.error}>{errors.password.message}</Text>
           )}
 
-          {/* Submit */}
           <TouchableOpacity
             style={[styles.button, loading && styles.buttonDisabled]}
             onPress={handleSubmit(onSubmit)}
@@ -117,7 +112,6 @@ export default function LoginScreen({ navigation }) {
             )}
           </TouchableOpacity>
 
-          {/* Navigate to Register */}
           <TouchableOpacity onPress={() => navigation.navigate("Register")}>
             <Text style={styles.link}>
               Don't have an account?{" "}

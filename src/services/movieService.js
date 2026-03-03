@@ -15,14 +15,6 @@ import { uploadImage, deleteImage } from "./storageService";
 
 const COLLECTION = "movies";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Movie Service — Full CRUD against Firestore
-// Each function returns { data, error } so callers handle state cleanly.
-// ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * GET — Fetch all movies for the authenticated user, newest first.
- */
 export async function getMovies(userId) {
   try {
     const q = query(collection(db, COLLECTION), where("userId", "==", userId));
@@ -35,9 +27,6 @@ export async function getMovies(userId) {
   }
 }
 
-/**
- * GET (single) — Fetch one movie by its Firestore document ID.
- */
 export async function getMovieById(movieId) {
   try {
     const docRef = doc(db, COLLECTION, movieId);
@@ -52,20 +41,19 @@ export async function getMovieById(movieId) {
   }
 }
 
-/**
- * POST — Create a new movie document.
- * If imageUri is provided, uploads the image to Storage first.
- */
-export async function addMovie({ imageUri, ...movieData }) {
+export async function addMovie({
+  imageUri,
+  imageUrl: providedImageUrl = null,
+  ...movieData
+}) {
   try {
-    let imageUrl = null;
+    let imageUrl = providedImageUrl;
 
     if (imageUri) {
       const uploadResult = await uploadImage(
         imageUri,
         `posters/${movieData.userId}_${Date.now()}.jpg`,
       );
-      // If image upload fails, save movie without image rather than blocking
       if (!uploadResult.error) {
         imageUrl = uploadResult.url;
       } else {
@@ -87,10 +75,6 @@ export async function addMovie({ imageUri, ...movieData }) {
   }
 }
 
-/**
- * PUT/PATCH — Update an existing movie document.
- * If a new imageUri is provided, upload it and replace the old one.
- */
 export async function updateMovie(
   movieId,
   { imageUri, existingImageUrl, ...updates },
@@ -99,7 +83,6 @@ export async function updateMovie(
     let imageUrl = existingImageUrl; // keep existing URL by default
 
     if (imageUri) {
-      // Upload new image
       const uploadResult = await uploadImage(
         imageUri,
         `posters/${movieId}_${Date.now()}.jpg`,
@@ -107,7 +90,6 @@ export async function updateMovie(
       if (uploadResult.error) return { error: uploadResult.error };
       imageUrl = uploadResult.url;
 
-      // Delete the old image from Storage if it existed
       if (existingImageUrl) {
         await deleteImage(existingImageUrl);
       }
@@ -127,9 +109,6 @@ export async function updateMovie(
   }
 }
 
-/**
- * DELETE — Remove a movie document (and its Storage image if present).
- */
 export async function deleteMovie(movieId, imageUrl) {
   try {
     await deleteDoc(doc(db, COLLECTION, movieId));
@@ -145,9 +124,6 @@ export async function deleteMovie(movieId, imageUrl) {
   }
 }
 
-/**
- * GET stats — Returns { total, watched } counts for the profile screen.
- */
 export async function getMovieStats(userId) {
   try {
     const q = query(collection(db, COLLECTION), where("userId", "==", userId));

@@ -28,8 +28,10 @@
       "permissions": [
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",
-        "android.permission.CAMERA"
-      ]
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.radoslavyordanov8.moviewatchlist"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -42,7 +44,14 @@
           "photosPermission": "Allow Movie Watchlist to access your photos to upload movie poster images.",
           "cameraPermission": "Allow Movie Watchlist to use the camera to take movie poster photos."
         }
-      ]
-    ]
+      ],
+      "expo-asset",
+      "expo-font"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "ef3f0e84-6150-4162-9869-e47cd8703420"
+      }
+    }
   }
 }
