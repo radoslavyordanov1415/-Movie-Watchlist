@@ -5,8 +5,10 @@ import {
   Text,
   FlatList,
   ScrollView,
+  Modal,
   StyleSheet,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   RefreshControl,
   TextInput,
 } from "react-native";
@@ -42,6 +44,7 @@ export default function MovieListScreen({ navigation }) {
   const [activeFilter, setActiveFilter] = useState("all");
   const [activeGenre, setActiveGenre] = useState("all");
   const [activeSort, setActiveSort] = useState("newest");
+  const [genreDropdownOpen, setGenreDropdownOpen] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -193,6 +196,26 @@ export default function MovieListScreen({ navigation }) {
             </Text>
           </TouchableOpacity>
         ))}
+        {uniqueGenres.length > 2 && (
+          <TouchableOpacity
+            style={[
+              styles.genreDropdownBtn,
+              activeGenre !== "all" && styles.genreDropdownBtnActive,
+            ]}
+            onPress={() => setGenreDropdownOpen(true)}
+            activeOpacity={0.75}
+          >
+            <Text
+              style={[
+                styles.genreDropdownBtnText,
+                activeGenre !== "all" && styles.genreDropdownBtnTextActive,
+              ]}
+              numberOfLines={1}
+            >
+              {activeGenre === "all" ? "Genre ▾" : `${activeGenre} ▾`}
+            </Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity
           style={styles.sortBtn}
           onPress={cycleSortKey}
@@ -204,35 +227,50 @@ export default function MovieListScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      {uniqueGenres.length > 2 && (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.genreScroll}
-          contentContainerStyle={styles.genreScrollContent}
-        >
-          {uniqueGenres.map((g) => (
-            <TouchableOpacity
-              key={g}
-              style={[
-                styles.genreChip,
-                activeGenre === g && styles.genreChipActive,
-              ]}
-              onPress={() => setActiveGenre(g)}
-              activeOpacity={0.75}
-            >
-              <Text
-                style={[
-                  styles.genreChipText,
-                  activeGenre === g && styles.genreChipTextActive,
-                ]}
-              >
-                {g === "all" ? "All Genres" : g}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      )}
+      <Modal
+        visible={genreDropdownOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setGenreDropdownOpen(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setGenreDropdownOpen(false)}>
+          <View style={styles.dropdownOverlay}>
+            <TouchableWithoutFeedback>
+              <View style={styles.dropdownMenu}>
+                <Text style={styles.dropdownTitle}>Filter by Genre</Text>
+                <ScrollView bounces={false}>
+                  {uniqueGenres.map((g) => (
+                    <TouchableOpacity
+                      key={g}
+                      style={[
+                        styles.dropdownItem,
+                        activeGenre === g && styles.dropdownItemActive,
+                      ]}
+                      onPress={() => {
+                        setActiveGenre(g);
+                        setGenreDropdownOpen(false);
+                      }}
+                      activeOpacity={0.75}
+                    >
+                      <Text
+                        style={[
+                          styles.dropdownItemText,
+                          activeGenre === g && styles.dropdownItemTextActive,
+                        ]}
+                      >
+                        {g === "all" ? "All Genres" : g}
+                      </Text>
+                      {activeGenre === g && (
+                        <Ionicons name="checkmark" size={16} color="#E50914" />
+                      )}
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
 
       {loading && movies.length === 0 && <LoadingSpinner />}
 
@@ -287,8 +325,8 @@ const styles = StyleSheet.create({
   },
   filterRow: {
     flexDirection: "row",
-    paddingHorizontal: 16,
-    gap: 8,
+    paddingHorizontal: 10,
+    gap: 5,
     marginBottom: 4,
     alignItems: "center",
     flexWrap: "nowrap",
@@ -296,28 +334,87 @@ const styles = StyleSheet.create({
   sortBtn: {
     marginLeft: "auto",
     borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
     backgroundColor: "#1e1e1e",
     borderWidth: 1,
     borderColor: "#555",
   },
   sortBtnText: {
     color: "#aaa",
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "600",
   },
-  genreScroll: {
-    marginBottom: 4,
+  genreDropdownBtn: {
+    borderRadius: 20,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    backgroundColor: "#1e1e1e",
+    borderWidth: 1,
+    borderColor: "#333",
+    maxWidth: 95,
   },
-  genreScrollContent: {
+  genreDropdownBtnActive: {
+    backgroundColor: "#1a3a5c",
+    borderColor: "#2a6aac",
+  },
+  genreDropdownBtnText: {
+    color: "#888",
+    fontSize: 11,
+    fontWeight: "600",
+  },
+  genreDropdownBtnTextActive: {
+    color: "#6ab0f5",
+  },
+  dropdownOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  dropdownMenu: {
+    backgroundColor: "#1e1e1e",
+    borderRadius: 12,
+    width: 240,
+    maxHeight: 360,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "#333",
+  },
+  dropdownTitle: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "700",
     paddingHorizontal: 16,
-    gap: 8,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#2a2a2a",
+  },
+  dropdownItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#2a2a2a",
+  },
+  dropdownItemActive: {
+    backgroundColor: "#141414",
+  },
+  dropdownItemText: {
+    color: "#888",
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  dropdownItemTextActive: {
+    color: "#fff",
+    fontWeight: "700",
   },
   filterChip: {
     borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     backgroundColor: "#1e1e1e",
     borderWidth: 1,
     borderColor: "#333",
@@ -328,7 +425,7 @@ const styles = StyleSheet.create({
   },
   filterChipText: {
     color: "#888",
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: "600",
   },
   filterChipTextActive: {
