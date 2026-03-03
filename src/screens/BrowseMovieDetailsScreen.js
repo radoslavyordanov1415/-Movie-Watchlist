@@ -57,7 +57,7 @@ export default function BrowseMovieDetailsScreen({ route, navigation }) {
         [
           {
             text: "OK",
-            onPress: () => navigation.navigate("BrowseSearch"),
+            onPress: () => navigation.getParent()?.navigate("Home"),
           },
         ],
       );
